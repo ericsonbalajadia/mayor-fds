@@ -4,15 +4,15 @@ const bodyParser = require("body-parser");
 const cors = require("cors");
 
 const app = express();
-app.use(cors());
+app.use(cors()); 
 app.use(bodyParser.json());
 
 // Connect to MySQL
 const db = mysql.createConnection({
-    host: "127.0.0.1", // Always use 127.0.0.1 instead of localhost for consistency
-    port: 3307,        // XAMPP MySQL port
+    host: "127.0.0.1", 
+    port: 3307,        
     user: "root",
-    password: "", // Your MySQL password
+    password: "", 
     database: "student_records",
   });
   
@@ -26,7 +26,6 @@ db.connect((err) => {
   }
 });
 
-// Add this at the top of your route definitions
 app.get("/", (req, res) => {
     res.send("Welcome to the Student Records API!");
   });
@@ -92,6 +91,22 @@ app.get("/students", (req, res) => {
   });
 });
 
+// Get a single student by ID
+app.get("/students/:id", (req, res) => {
+  const { id } = req.params;
+  const query = "SELECT * FROM students WHERE StudentID = ?";
+  db.query(query, [id], (err, results) => {
+    if (err) {
+      console.error("Error fetching student:", err);
+      res.status(500).send("Error fetching student");
+    } else if (results.length === 0) {
+      res.status(404).send("Student not found");
+    } else {
+      res.json(results[0]);
+    }
+  });
+});
+
 // Sort records by a field
 app.get("/students/sort/:field", (req, res) => {
   const { field } = req.params;
@@ -110,6 +125,7 @@ app.get("/students/sort/:field", (req, res) => {
     }
   });
 });
+
 
 // Add mock data
 app.post("/students/mock", (req, res) => {

@@ -5,33 +5,43 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Student Records</title>
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  
 </head>
 <body class="bg-gray-100">
 
   <div class="container mx-auto p-5">
     <h1 class="text-4xl font-bold text-center mb-5 text-blue-600">Student Records Management</h1>
 
-    <!-- Button to Open Modal -->
     <div class="mb-5 text-start">
-      <button id="openModalBtn" class="btn bg-blue-500 text-white p-2 rounded hover:bg-blue-600">Add New Student</button>
+      <button id="openModalBtn" class="btn bg-blue-500 text-white p-2 rounded hover:bg-blue-600 shadow-md">Add New Student</button>
+      <div class="inline-block ml-4">
+        <label for="sortField" class="mr-2">Sort by:</label>
+        <select id="sortField" class="input p-2 border border-gray-300 rounded shadow-sm">
+          <option value="Surname">Surname</option>
+          <option value="Firstname">Firstname</option>
+          <option value="Birthdate">Birthdate</option>
+        </select>
+        <button id="sortBtn" class="btn bg-green-500 text-white p-2 rounded hover:bg-green-600 ml-2 shadow-md">Sort</button>
+      </div>
     </div>
 
     <!-- Modal -->
     <div id="studentModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center hidden">
       <div class="bg-white p-6 rounded-lg shadow-lg w-1/2">
-        <h2 class="text-2xl font-semibold text-gray-700 mb-4">Add New Student</h2>
+        <h2 id="modalTitle" class="text-2xl font-semibold text-gray-700 mb-4">Add New Student</h2>
         <form id="addStudentForm" class="space-y-4">
-          <input type="text" id="surname" class="input w-full p-2 border border-gray-300 rounded" placeholder="Surname" required />
-          <input type="text" id="firstname" class="input w-full p-2 border border-gray-300 rounded" placeholder="Firstname" required />
-          <input type="date" id="birthdate" class="input w-full p-2 border border-gray-300 rounded" required />
-          <select id="gender" class="input w-full p-2 border border-gray-300 rounded" required>
+          <input type="hidden" id="studentId" />
+          <input type="text" id="surname" class="input w-full p-2 border border-gray-300 rounded shadow-sm" placeholder="Surname" required />
+          <input type="text" id="firstname" class="input w-full p-2 border border-gray-300 rounded shadow-sm" placeholder="Firstname" required />
+          <input type="date" id="birthdate" class="input w-full p-2 border border-gray-300 rounded shadow-sm" required />
+          <select id="gender" class="input w-full p-2 border border-gray-300 rounded shadow-sm" required>
             <option value="Male">Male</option>
             <option value="Female">Female</option>
           </select>
-          <input type="text" id="address" class="input w-full p-2 border border-gray-300 rounded" placeholder="Address" required />
+          <input type="text" id="address" class="input w-full p-2 border border-gray-300 rounded shadow-sm" placeholder="Address" required />
           <div class="flex justify-end space-x-2">
-            <button type="button" id="closeModalBtn" class="btn bg-gray-500 text-white p-2 rounded hover:bg-gray-600">Cancel</button>
-            <button type="submit" class="btn bg-blue-500 text-white p-2 rounded hover:bg-blue-600">Add Student</button>
+            <button type="button" id="closeModalBtn" class="btn bg-gray-500 text-white p-2 rounded hover:bg-gray-600 shadow-md">Cancel</button>
+            <button type="submit" class="btn bg-blue-500 text-white p-2 rounded hover:bg-blue-600 shadow-md">Save</button>
           </div>
         </form>
       </div>
@@ -60,81 +70,6 @@
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-  <script>
-    const API_URL = "http://localhost:3000/students";
-
-    document.getElementById('openModalBtn').addEventListener('click', function() {
-      document.getElementById('studentModal').classList.remove('hidden');
-    });
-
-    document.getElementById('closeModalBtn').addEventListener('click', function() {
-      document.getElementById('studentModal').classList.add('hidden');
-    });
-
-    document.getElementById('addStudentForm').addEventListener('submit', function(event) {
-      event.preventDefault();
-      
-      const studentData = {
-        surname: document.getElementById('surname').value,
-        firstname: document.getElementById('firstname').value,
-        birthdate: document.getElementById('birthdate').value,
-        gender: document.getElementById('gender').value,
-        address: document.getElementById('address').value
-      };
-
-      axios.post(API_URL, studentData)
-        .then(response => {
-          alert("Student added successfully!");
-          document.getElementById('studentModal').classList.add('hidden');
-          fetchStudents(); // Refresh the students table
-          document.getElementById('addStudentForm').reset(); // Reset the form
-        })
-        .catch(error => {
-          console.error("There was an error adding the student!", error);
-        });
-    });
-
-    function fetchStudents() {
-      axios.get(API_URL)
-        .then(response => {
-          const students = response.data;
-          const studentsBody = document.getElementById("studentsBody");
-          studentsBody.innerHTML = ""; 
-
-          students.forEach(student => {
-            const row = document.createElement("tr");
-
-            row.innerHTML = `
-              <td class="border px-4 py-2">${student.StudentID}</td>
-              <td class="border px-4 py-2">${student.Surname}</td>
-              <td class="border px-4 py-2">${student.Firstname}</td>
-              <td class="border px-4 py-2">${student.Birthdate}</td>
-              <td class="border px-4 py-2">${student.Gender}</td>
-              <td class="border px-4 py-2">${student.Address}</td>
-              <td class="border px-4 py-2">
-                <button class="text-red-500" onclick="deleteStudent(${student.StudentID})">Delete</button>
-              </td>
-            `;
-            studentsBody.appendChild(row);
-          });
-        })
-        .catch(error => {
-          console.error("There was an error fetching students!", error);
-        });
-    }
-
-    function deleteStudent(studentId) {
-      axios.delete(`${API_URL}/${studentId}`)
-        .then(response => {
-          alert("Student deleted successfully!");
-          fetchStudents(); 
-        })
-        .catch(error => {
-          console.error("There was an error deleting the student!", error);
-        });
-    }
-
-    window.onload = fetchStudents;
-  </script>
+  <script src="script.js"></script>
 </body>
 </html>
