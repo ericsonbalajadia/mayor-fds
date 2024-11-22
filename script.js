@@ -12,6 +12,7 @@ document.getElementById('closeModalBtn').addEventListener('click', function() {
   document.getElementById('studentModal').classList.add('hidden');
 });
 
+// Add new student or edit existing student
 document.getElementById('addStudentForm').addEventListener('submit', function(event) {
   event.preventDefault();
   
@@ -37,7 +38,6 @@ document.getElementById('addStudentForm').addEventListener('submit', function(ev
         console.error("There was an error updating the student!", error);
       });
   } else {
-
     axios.post(API_URL, studentData)
       .then(response => {
         alert("Student added successfully!");
@@ -51,6 +51,7 @@ document.getElementById('addStudentForm').addEventListener('submit', function(ev
   }
 });
 
+// Function to format dates
 function formatDate(dateString) {
   const date = new Date(dateString);
   const options = {
@@ -61,11 +62,13 @@ function formatDate(dateString) {
   return date.toLocaleDateString('en-US', options);
 }
 
-document.getElementById('sortBtn').addEventListener('click', function() {
-  const sortField = document.getElementById('sortField').value;
+// Event listener to sort students automatically when a dropdown selection is made
+document.getElementById('sortField').addEventListener('change', function() {
+  const sortField = this.value;
   fetchStudents(sortField);
 });
 
+// Fetch students data from the API and populate the table
 function fetchStudents(sortField = '') {
   let url = API_URL;
   if (sortField) {
@@ -76,12 +79,12 @@ function fetchStudents(sortField = '') {
     .then(response => {
       const students = response.data;
       const studentsBody = document.getElementById("studentsBody");
-      studentsBody.innerHTML = ""; 
+      studentsBody.innerHTML = ""; // Clear the current table rows
 
       students.forEach(student => {
         const formattedBirthdate = formatDate(student.Birthdate);
         const row = document.createElement("tr");
-        
+
         row.innerHTML = `
           <td class="border px-4 py-2">${student.StudentID}</td>
           <td class="border px-4 py-2">${student.Surname}</td>
@@ -92,7 +95,7 @@ function fetchStudents(sortField = '') {
           <td class="border px-4 py-2">
             <button 
               onclick="editStudent('${student.StudentID}')" 
-              class="btn bg-blue-500 text-white p-2 rounded hover:bg-blue-600 mr-2">
+              class="btn-purple bg-blue-500 text-white p-2 rounded hover:bg-blue-600 mr-2">
               Edit
             </button>
             <button 
@@ -110,88 +113,47 @@ function fetchStudents(sortField = '') {
     });
 }
 
+// Function to edit student details
 function editStudent(studentId) {
-    
-    axios.get(`${API_URL}/${studentId}`)
-      .then(response => {
-        console.log("Edit response:", response.data);  
-        const student = response.data;
-        
-        if (!student) {
-          throw new Error('No student data received');
-        }
-
-        document.getElementById('modalTitle').textContent = 'Edit Student';     
-        document.getElementById('studentId').value = student.StudentID || student.studentId;
-        document.getElementById('surname').value = student.Surname || student.surname;
-        document.getElementById('firstname').value = student.Firstname || student.firstname;
-        
-        const birthdate = student.Birthdate || student.birthdate;
-        if (birthdate) {
-          const dateObj = new Date(birthdate);
-          const formattedDate = dateObj.toISOString().split('T')[0];
-          document.getElementById('birthdate').value = formattedDate;
-        }
-        
-        document.getElementById('gender').value = student.Gender || student.gender;
-        document.getElementById('address').value = student.Address || student.address;
-        document.getElementById('studentModal').classList.remove('hidden');
-      })
-      .catch(error => {
-        console.error("Error in editStudent:", error);
-        console.error("Full error details:", {
-          message: error.message,
-          response: error.response,
-          request: error.request
-        });
-        alert(`Error fetching student details. Please check the console for more information.`);
-      });
+  axios.get(`${API_URL}/${studentId}`)
+    .then(response => {
+      const student = response.data;
+      
+      document.getElementById('modalTitle').textContent = 'Edit Student';     
+      document.getElementById('studentId').value = student.StudentID || student.studentId;
+      document.getElementById('surname').value = student.Surname || student.surname;
+      document.getElementById('firstname').value = student.Firstname || student.firstname;
+      
+      const birthdate = student.Birthdate || student.birthdate;
+      if (birthdate) {
+        const dateObj = new Date(birthdate);
+        const formattedDate = dateObj.toISOString().split('T')[0];
+        document.getElementById('birthdate').value = formattedDate;
+      }
+      
+      document.getElementById('gender').value = student.Gender || student.gender;
+      document.getElementById('address').value = student.Address || student.address;
+      document.getElementById('studentModal').classList.remove('hidden');
+    })
+    .catch(error => {
+      console.error("Error in editStudent:", error);
+      alert(`Error fetching student details. Please check the console for more information.`);
+    });
 }
-  function deleteStudent(studentId) {
-    if (confirm('Are you sure you want to delete this student?')) {
-      axios.delete(`${API_URL}/${studentId}`)
-        .then(response => {
-          alert("Student deleted successfully!");
-          fetchStudents(); 
-        })
-        .catch(error => {
-          console.error("There was an error deleting the student!", error);
-        });
-    }
-  }
-  
-  document.getElementById('openModalBtn').addEventListener('click', function() {
-    document.getElementById('modalTitle').textContent = 'Add New Student';
-    document.getElementById('addStudentForm').reset();
-    document.getElementById('studentId').value = '';
-    document.getElementById('studentModal').classList.remove('hidden');
-  });
 
-  document.addEventListener('DOMContentLoaded', function() {
-    axios.get('/api/students')
+// Function to delete student
+function deleteStudent(studentId) {
+  if (confirm('Are you sure you want to delete this student?')) {
+    axios.delete(`${API_URL}/${studentId}`)
       .then(response => {
-        const students = response.data;
-        const studentsBody = document.getElementById('studentsBody');
-        studentsBody.innerHTML = '';
-        students.forEach(student => {
-          const row = document.createElement('tr');
-          row.innerHTML = `
-            <td class="border px-4 py-2">${student.StudentID}</td>
-            <td class="border px-4 py-2">${student.Surname}</td>
-            <td class="border px-4 py-2">${student.Firstname}</td>
-            <td class="border px-4 py-2">${student.Birthdate}</td>
-            <td class="border px-4 py-2">${student.Gender}</td>
-            <td class="border px-4 py-2">${student.Address}</td>
-            <td class="border px-4 py-2">Actions</td>
-          `;
-          studentsBody.appendChild(row);
-        });
+        alert("Student deleted successfully!");
+        fetchStudents(); // Refresh the students table
       })
       .catch(error => {
-        console.error('There was an error fetching the students!', error);
+        console.error("There was an error deleting the student!", error);
       });
-  });
+  }
+}
 
-// Load students when the page loads
+// Initial load of students when the page is loaded
 window.onload = () => fetchStudents(); 
-
