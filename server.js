@@ -10,9 +10,9 @@ app.use(bodyParser.json());
 // Connect to MySQL
 const db = mysql.createConnection({
     host: "127.0.0.1", 
-    port: 3306,        
-    user: "myadmin",
-    password: "root", 
+    port: 3307,        
+    user: "root",
+    password: "", 
     database: "student_rec_db",
   });
   

@@ -86,22 +86,24 @@ function fetchStudents(sortField = '') {
         const row = document.createElement("tr");
 
         row.innerHTML = `
-          <td class="border px-4 py-2">${student.StudentID}</td>
-          <td class="border px-4 py-2">${student.Surname}</td>
-          <td class="border px-4 py-2">${student.Firstname}</td>
-          <td class="border px-4 py-2">${formattedBirthdate}</td>
-          <td class="border px-4 py-2">${student.Gender}</td>
-          <td class="border px-4 py-2">${student.Address}</td>
-          <td class="border px-4 py-2">
+          <td class="border px-5 py-3">${student.StudentID}</td>
+          <td class="border px-5 py-3">${student.Surname}</td>
+          <td class="border px-5 py-3">${student.Firstname}</td>
+          <td class="border px-5 py-3">${formattedBirthdate}</td>
+          <td class="border px-5 py-3">${student.Gender}</td>
+          <td class="border px-5 py-3">${student.Address}</td>
+          <td class="border px-5 py-3">
             <button 
               onclick="editStudent('${student.StudentID}')" 
-              class="btn-purple bg-blue-500 text-white p-2 rounded hover:bg-blue-600 mr-2">
-              Edit
+              class="btn bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 mr-2" 
+              title="Edit Student">
+              <i class="fas fa-edit"></i> Edit
             </button>
             <button 
               onclick="deleteStudent('${student.StudentID}')" 
-              class="text-red-500 hover:text-red-700">
-              Delete
+              class="text-red-500 hover:text-red-700" 
+              title="Delete Student">
+              <i class="fas fa-trash-alt"></i> Delete
             </button>
           </td>
         `;
@@ -156,4 +158,4 @@ function deleteStudent(studentId) {
 }
 
 // Initial load of students when the page is loaded
-window.onload = () => fetchStudents(); 
+window.onload = () => fetchStudents();

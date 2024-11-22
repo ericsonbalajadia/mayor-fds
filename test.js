@@ -2,7 +2,7 @@ const http = require('http');
 
 const options = {
   host: 'localhost',
-  port: 3306,
+  port: 3307,
 };
 
 http.get(options, (res) => {
